@@ -1,5 +1,5 @@
 {
-    "name:": "applicant-tracker",
+    "name": "applicant-tracker",
     "private": true,
     "workspaces": [
         "apps/*",
