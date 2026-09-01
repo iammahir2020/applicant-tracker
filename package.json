@@ -1,0 +1,13 @@
+{
+    "name:": "applicant-tracker",
+    "private": true,
+    "workspaces": [
+        "apps/*",
+        "services/*"
+    ],
+    "type": "module",
+    "scripts": {},
+    "engines": {
+        "node": ">=22"
+    }
+}
