@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# A new push to the same branch cancels the previous run. Without this, pushing
+# three times in a minute queues three full runs and you wait for all of them.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege. The default token can write to the repo; this job only reads.
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, typecheck, format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # Single source of truth for the Node version — same file nvm reads.
+          node-version-file: .nvmrc
+          cache: npm
+
+      # ci, not install: installs exactly what package-lock.json pins and fails
+      # if the lockfile and package.json disagree, instead of silently fixing it.
+      - name: Install
+        run: npm ci
+
+      # Cheapest check first, so an obvious failure comes back in seconds.
+      - name: Format
+        run: npm run format:check
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Slowest: type-aware linting builds the TS program for every package.
+      - name: Lint
+        run: npm run lint
