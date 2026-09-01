@@ -1,9 +1,9 @@
 {
-    "name": "@tracker/events-worker",
-    "version": "0.0.1",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "typecheck": "tsc --noEmit"
-    }
+  "name": "@tracker/events-worker",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
 }
