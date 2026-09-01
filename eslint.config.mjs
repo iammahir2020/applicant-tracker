@@ -44,7 +44,13 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['@tracker/bff', '@tracker/applications', '@tracker/companies', '@tracker/events-worker', '@tracker/web'],
+              group: [
+                '@tracker/bff',
+                '@tracker/applications',
+                '@tracker/companies',
+                '@tracker/events-worker',
+                '@tracker/web',
+              ],
               message:
                 'Services and apps are separately deployed. Talk over HTTP, or put the shared code in @tracker/shared.',
             },

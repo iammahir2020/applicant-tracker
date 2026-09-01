@@ -3,3 +3,11 @@ dist/
 build/
 coverage/
 package-lock.json
+
+# Hand-written prose, not build artifacts. Prettier would churn emphasis markers
+# and blank lines on every edit, adding diff noise to the files that get read most.
+CLAUDE.md
+step.md
+learn.md
+three-day-fullstack-sprint.md
+interview-question-bank.md

@@ -1,28 +1,28 @@
 {
-    "name": "applicant-tracker",
-    "private": true,
-    "workspaces": [
-        "apps/*",
-        "services/*"
-    ],
-    "type": "module",
-    "scripts": {
-        "typecheck": "npm run typecheck --workspaces --if-present",
-        "lint": "eslint .",
-        "lint:fix": "eslint . --fix",
-        "format": "prettier --write .",
-        "format:check": "prettier --check ."
-    },
-    "engines": {
-        "node": ">=22"
-    },
-    "devDependencies": {
-        "@eslint/js": "^10.0.1",
-        "@types/node": "^26.4.0",
-        "eslint": "^10.9.1",
-        "eslint-config-prettier": "^10.1.8",
-        "prettier": "^3.9.6",
-        "typescript": "~6.0.3",
-        "typescript-eslint": "^8.69.0"
-    }
+  "name": "applicant-tracker",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "services/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.4.0",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.69.0"
+  }
 }
