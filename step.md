@@ -16,9 +16,9 @@ The ordered spine of the Applicant Tracker build. Derived from `three-day-fullst
 
 ## Current Position
 
-- **Now:** Step 3 — GitHub Actions fast lane + branch protection (**Tier C** — Claude writes the workflow, Mahir sets branch protection)
-- **Last done:** Step 2 — TypeScript strict baseline and tooling (2026-09-01)
-- **Next:** Step 5 — The TypeScript you'll actually be asked about (**Tier A**)
+- **Now:** Step 5 — The TypeScript you'll actually be asked about (**Tier A** — full loop, Mahir writes all of it)
+- **Last done:** Step 3 — GitHub Actions fast lane + branch protection, PR #1 merged (2026-09-01)
+- **Next:** Step 6 — Fastify skeleton, config, graceful shutdown (**Tier B**)
 - **Open threads:** Step 4 (docker-compose, Tier C) deferred until just before Step 7, which is the first step that needs a database. Placeholder `src/index.ts` files exist in all five packages purely so `tsc` has inputs — replace, don't add alongside. Repo is named `application-tracker` on GitHub while the project is `applicant-tracker`.
 
 ---
@@ -47,12 +47,13 @@ Wrote the build plan and the interview question bank. Chose the domain, the arch
 **Answers:** "what does `strict: true` turn on", "structural typing — what breaks", "`interface` vs `type`".
 **What happened:** done 2026-09-01. Claude wrote `tsconfig.base.json`, five per-package tsconfigs, `eslint.config.mjs` (flat, type-aware via `projectService`), Prettier + `eslint-config-prettier`. TypeScript pinned to `~6.0.3` not 7.x because `typescript-eslint@8` peers on `typescript <6.1.0` — type-aware linting was judged worth one major of lag. Added a `no-restricted-imports` rule enforcing the service boundary. Verified with throwaway probe files that `noUncheckedIndexedAccess`, `no-floating-promises` and the boundary rule all actually fire.
 
-### [ ] Step 3 — GitHub Actions fast lane + branch protection
+### [x] Step 3 — GitHub Actions fast lane + branch protection
 **Tier C** — Claude writes it. You owe the three-sentence narrative, not the syntax.
 **Concepts:** CI as a gate not a formality · workflows / jobs / steps and the `needs:` DAG · why fast checks run first · dependency caching · scoped `GITHUB_TOKEN`.
 **Build:** `.github/workflows/ci.yml` on pull_request: checkout → setup-node with npm cache → install → lint → typecheck. Branch protection on `main` requiring it.
 **Done when:** a deliberately-broken PR goes red and blocks merge · a good one goes green.
 **Answers:** "GitHub Actions — the mental model", "how do you make a CI run faster".
+**What happened:** done 2026-09-01 via PR #1. `.github/workflows/ci.yml` — `pull_request` + `push` on `main`, `concurrency` with `cancel-in-progress`, `permissions: contents: read`, `npm ci`, Node from `.nvmrc`, npm cache keyed on the lockfile. One job, not a parallel DAG — deliberate, see `learn.md`. Ruleset `base-rule` on `main`: PR required, `Lint, typecheck, format` required, no deletion, no force-push. The deliberate-break came for free — the first run went red on `format:check` because the repo did not satisfy its own new Prettier config.
 
 ### [ ] Step 4 — docker-compose: two Postgres instances + LocalStack
 **Tier C** — Claude writes it. You owe the three-sentence narrative, not the syntax.

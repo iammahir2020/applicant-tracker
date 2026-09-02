@@ -121,3 +121,36 @@ Two steps were unassigned in the original proposal and got resolved here: **Step
 **Still open.** Step 3 (GitHub Actions, Tier C) next, so that PRs are gated from here on. Step 4 (docker-compose) deferred until just before Step 7, the first step that needs a database. Then Step 5, the first Tier A step.
 
 ---
+## Entry 3 — 2026-09-01 — Step 3: GitHub Actions fast lane and branch protection (Tier C)
+
+**Where we were.** Strict TypeScript, ESLint and Prettier configured but nothing enforcing them. Step 3 turns those scripts into a gate.
+
+**What Claude wrote.** `.github/workflows/ci.yml`. Triggers on `pull_request` into `main` and on `push` to `main`. One job, `verify`, named "Lint, typecheck, format": checkout → setup-node → `npm ci` → `format:check` → `typecheck` → `lint`.
+
+**The narrative he owes.** Actions gates every PR into `main`: install with `npm ci` against the committed lockfile, then format, typecheck and lint, cheapest check first so failures come back fast. Node comes from `.nvmrc` so CI and the laptop cannot drift, and `setup-node`'s npm cache keys off the lockfile hash so most runs skip the download entirely. It is one job rather than a parallel DAG because at this size runner startup costs more than the parallelism saves — that changes in Step 31 when the test suites land.
+
+**Decisions made, and why.**
+
+- **`npm ci`, not `npm install`.** `ci` installs exactly what the lockfile pins and *fails* when the lockfile and `package.json` disagree; `install` would quietly reconcile them, so CI could pass against a dependency tree nobody actually has. This is the concrete reason the lockfile is committed.
+- **`node-version-file: .nvmrc`** rather than a hardcoded `22`. One source of truth for the runtime; hardcoding invites drift between CI and local.
+- **`cache: npm` on setup-node**, keyed off the lockfile hash. Highest-leverage CI speedup available, and it is one line. Good answer to "how do you make a CI run faster."
+- **`concurrency` with `cancel-in-progress: true`.** Three pushes in a minute would otherwise queue three full runs.
+- **`permissions: contents: read`.** The default `GITHUB_TOKEN` can write to the repo; this job only reads. Least privilege.
+- **Steps ordered cheapest-first** — format (seconds), then typecheck, then lint. Type-aware linting is slowest because it builds the TS program for every package.
+- **One job, no `needs:` DAG.** Deliberate. Fan-out would mean three runner boots and three `npm ci` runs to parallelise about forty seconds of work. Fan-out pays once jobs are long enough to amortise that overhead, which is Step 31. Worth saying out loud: reaching for concurrency you do not need is the over-engineering signal interviewers probe for.
+
+**What went wrong, and what it demonstrated.** The first CI run went **red in 11 seconds** on `format:check`: Claude had written a Prettier config and never run it against the repo, so eleven files failed their own new formatting rules. Two things worth keeping from that.
+
+First, it was an accidental version of the deliberate-break exercise — a genuinely red check, with the merge button genuinely blocked, on a real defect rather than a planted one.
+
+Second, it validated the step ordering. The answer came back in 11 seconds instead of after a full typecheck and a type-aware lint pass. Related and easy to trip over: steps in a job run sequentially and the job stops at the first non-zero exit, so **a red CI tells you the first thing that is wrong, not everything that is wrong**.
+
+Prettier wanted to reformat the prose documents too — `*emphasis*` to `_emphasis_`, blank lines around headings. Cosmetic, but it would churn `step.md` and `learn.md` on every session's edit, which are the files most often read. Added `CLAUDE.md`, `step.md`, `learn.md` and both planning documents to `.prettierignore`: Prettier formats code and `docs/`, prose is hand-written.
+
+**Branch protection.** Ruleset `base-rule` on `refs/heads/main`, active: pull request required, `Lint, typecheck, format` required to pass, deletion blocked, non-fast-forward (force-push) blocked. Note the required-check name comes from the job's `name:` field and does not appear in GitHub's picker until the workflow has run at least once.
+
+**Interview questions this now answers.** "GitHub Actions — the mental model." "How do you make a CI run faster?" — caching keyed on the lockfile, cheapest checks first, cancel superseded runs, and fan out only once jobs justify the overhead. "Why `npm ci` over `npm install` in CI?" Partially: "walk me through your pipeline."
+
+**Still open.** Step 4 (docker-compose) still deferred to just before Step 7. Next is Step 5 — first Tier A step, and the first one Mahir writes in full.
+
+---
